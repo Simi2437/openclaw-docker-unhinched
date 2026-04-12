@@ -1,0 +1,19 @@
+services:
+  openclaw:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    image: openclaw:local
+    container_name: openclaw
+    command: ["openclaw", "gateway"]
+    working_dir: /home/claw
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - ./agent-data/.openclaw:/home/claw/.openclaw
+      - ./:/workspace
+      # Beispiel: Mount einer lokalen KeePass-Datei als Secret in den Container
+      # - ./secrets/vault.kdbx:/run/secrets/vault.kdbx:ro
+      # Beispiel: Mount eines API-Key-Files
+      # - ./secrets/my_api_key.txt:/run/secrets/my_api_key.txt:ro

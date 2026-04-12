@@ -1,0 +1,85 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+# Base tools + Node 24 + useful utilities OpenClaw may need
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    software-properties-common \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-venv \
+    unzip \
+    zip \
+    jq \
+    nano \
+    vim \
+    iputils-ping \
+    net-tools \
+    dnsutils \
+    procps \
+    sudo \
+    openssh-client \
+    ripgrep \
+    fd-find \
+ && rm -rf /var/lib/apt/lists/*
+
+# NodeSource repo for Node 24
+RUN mkdir -p /etc/apt/keyrings \
+ && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+    | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+ && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" \
+    > /etc/apt/sources.list.d/nodesource.list \
+ && apt-get update \
+ && apt-get install -y nodejs \
+ && npm install -g pnpm \
+ && rm -rf /var/lib/apt/lists/*
+
+# OpenClaw global install
+RUN npm install -g openclaw
+
+# Build args to match host user (prevents permission issues with mounted volumes)
+ARG UID=1000
+ARG GID=1000
+ARG USER=claw
+
+# Create group/user with explicit conflict handling so USER always resolves.
+RUN set -eux; \
+  if ! getent group "${GID}" >/dev/null 2>&1; then \
+    groupadd -g "${GID}" "${USER}"; \
+  fi; \
+  if id -u "${USER}" >/dev/null 2>&1; then \
+    current_uid="$(id -u "${USER}")"; \
+    if [ "${current_uid}" != "${UID}" ]; then \
+      if getent passwd "${UID}" >/dev/null 2>&1 && [ "$(getent passwd "${UID}" | cut -d: -f1)" != "${USER}" ]; then \
+        echo "Requested UID ${UID} is already used by another account" >&2; \
+        exit 1; \
+      fi; \
+      usermod -u "${UID}" "${USER}"; \
+    fi; \
+    usermod -g "${GID}" "${USER}"; \
+  elif getent passwd "${UID}" >/dev/null 2>&1; then \
+    existing_user="$(getent passwd "${UID}" | cut -d: -f1)"; \
+    usermod -l "${USER}" -d "/home/${USER}" -m "${existing_user}"; \
+    usermod -g "${GID}" "${USER}"; \
+    usermod -s /bin/bash "${USER}"; \
+  else \
+    useradd -m -u "${UID}" -g "${GID}" -s /bin/bash "${USER}"; \
+  fi; \
+  mkdir -p "/home/${USER}/.openclaw"; \
+  chown -R "${UID}:${GID}" "/home/${USER}"; \
+  echo "${USER} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${USER}"; \
+  chmod 0440 "/etc/sudoers.d/${USER}"
+
+USER ${USER}
+WORKDIR /home/${USER}
+
+
+CMD ["/bin/bash"]

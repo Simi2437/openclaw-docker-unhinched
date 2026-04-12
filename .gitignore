@@ -1,0 +1,8 @@
+compose.yml
+.env
+# Keep only agent-data folder structure in git, not local runtime state
+agent-data/*
+!agent-data/.gitkeep
+!agent-data/.openclaw/
+agent-data/.openclaw/*
+!agent-data/.openclaw/.gitkeep
