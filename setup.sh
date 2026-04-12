@@ -49,7 +49,7 @@ ensure_host_config_dir() {
 fix_container_config_permissions() {
   # Ensure mounted config tree is writable by the runtime user inside container.
   if ! run_compose run --rm --user root --entrypoint /bin/bash "${SERVICE_NAME}" -lc \
-    "mkdir -p '${CONFIG_DIR}/identity' '${CONFIG_DIR}/agents/main/agent' '${CONFIG_DIR}/agents/main/sessions' && chown -R claw:claw '${CONFIG_DIR}' && chmod -R u+rwX '${CONFIG_DIR}'"; then
+    "mkdir -p '${CONFIG_DIR}/identity' '${CONFIG_DIR}/agents/main/agent' '${CONFIG_DIR}/agents/main/sessions' && chown -R claw '${CONFIG_DIR}' && chmod -R u+rwX '${CONFIG_DIR}'"; then
     echo "Error: failed to fix permissions for ${CONFIG_DIR} inside container." >&2
     echo "Hint: check host ownership of ${HOST_CONFIG_DIR} and rerun setup." >&2
     exit 1

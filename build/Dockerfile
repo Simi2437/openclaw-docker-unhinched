@@ -52,7 +52,12 @@ ARG USER=claw
 
 # Create group/user with explicit conflict handling so USER always resolves.
 RUN set -eux; \
-  if ! getent group "${GID}" >/dev/null 2>&1; then \
+  if getent group "${GID}" >/dev/null 2>&1; then \
+    existing_group="$(getent group "${GID}" | cut -d: -f1)"; \
+    if [ "${existing_group}" != "${USER}" ]; then \
+      groupmod -n "${USER}" "${existing_group}"; \
+    fi; \
+  else \
     groupadd -g "${GID}" "${USER}"; \
   fi; \
   if id -u "${USER}" >/dev/null 2>&1; then \
