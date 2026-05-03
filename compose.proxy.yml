@@ -1,0 +1,22 @@
+services:
+  proxy:
+    image: caddy:latest          # Beliebig austauschbar: nginx, squid, traefik, etc.
+    container_name: proxy
+    restart: unless-stopped
+    networks:
+      - agent-net
+    ports:
+      - "8080:8080"              # Anpassen je nach Proxy-Typ
+    volumes:
+      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro   # Konfiguration einbinden
+      - caddy-data:/data
+      - caddy-logs:/var/log/caddy
+
+networks:
+  agent-net:
+    external: true               # Netzwerk wurde von compose.template.yml erstellt
+
+volumes:
+  caddy-data:
+  caddy-logs:
+
