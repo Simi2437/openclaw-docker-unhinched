@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./agent-data/.openclaw:/home/claw/.openclaw
+      - ./agent-data/.ssh:/home/claw/.ssh
       - ./:/workspace
       # Beispiel: Mount einer lokalen KeePass-Datei als Secret in den Container
       # - ./secrets/vault.kdbx:/run/secrets/vault.kdbx:ro
