@@ -29,6 +29,8 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     ripgrep \
     fd-find \
+    lsof \
+    openssl \
  && rm -rf /var/lib/apt/lists/*
 
 # NodeSource repo for Node 24
@@ -44,6 +46,9 @@ RUN mkdir -p /etc/apt/keyrings \
 
 # OpenClaw global install
 RUN npm install -g openclaw
+
+# Python packages (--break-system-packages required on Ubuntu 24.04 / PEP 668)
+RUN pip install --break-system-packages requests
 
 # Build args to match host user (prevents permission issues with mounted volumes)
 ARG UID=1000
