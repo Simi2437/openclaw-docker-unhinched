@@ -9,22 +9,33 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 log() { echo "[entrypoint] $*"; }
-run() { log "▶ $*"; "$@"; }
 
 OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
-  log "--- openclaw core update ---"
-  if run sudo npm install -g openclaw; then
-    log "openclaw up-to-date: $(openclaw --version 2>/dev/null || echo 'version unknown')"
+  log "--- openclaw core update check ---"
+
+  INSTALLED="$(openclaw --version 2>/dev/null || echo 'unknown')"
+  log "installed version : ${INSTALLED}"
+
+  log "▶ npm view openclaw version  (fetching latest from registry...)"
+  LATEST="$(npm view openclaw version 2>/dev/null || echo 'unknown')"
+  log "latest on registry: ${LATEST}"
+
+  if [ "${INSTALLED}" = "${LATEST}" ]; then
+    log "already up-to-date, skipping install."
   else
-    log "WARNING: openclaw core update failed, continuing with installed version." >&2
+    log "update available (${INSTALLED} → ${LATEST}), installing..."
+    log "▶ sudo npm install -g openclaw@latest"
+    sudo npm install -g openclaw@latest --progress=true
+    log "openclaw updated to: $(openclaw --version 2>/dev/null || echo 'unknown')"
   fi
 
   # Update separately installed plugins (npm-tracked only; bundled plugins update with openclaw core above).
   # --yes is a global flag and must come before the subcommand for non-interactive use.
   log "--- openclaw plugin update ---"
-  if run openclaw --yes plugins update --all; then
+  log "▶ openclaw --yes plugins update --all"
+  if openclaw --yes plugins update --all; then
     log "openclaw plugins up-to-date."
   else
     log "WARNING: openclaw plugin update failed, continuing." >&2
