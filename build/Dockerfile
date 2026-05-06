@@ -91,5 +91,12 @@ RUN set -eux; \
 USER ${USER}
 WORKDIR /home/${USER}
 
+# Entrypoint: auto-updates openclaw on every container start
+COPY --chown=${USER}:${USER} entrypoint.sh /usr/local/bin/entrypoint.sh
+# Switch to root briefly to chmod, then back to USER
+USER root
+RUN chmod +x /usr/local/bin/entrypoint.sh
+USER ${USER}
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]
