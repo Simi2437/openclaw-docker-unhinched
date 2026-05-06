@@ -12,16 +12,16 @@ OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   echo "[entrypoint] Checking for openclaw core update..."
-  if npm install -g openclaw 2>&1 | tail -n 3; then
+  if sudo npm install -g openclaw 2>&1 | tail -n 3; then
     echo "[entrypoint] openclaw up-to-date: $(openclaw --version 2>/dev/null || echo 'version unknown')"
   else
     echo "[entrypoint] Warning: openclaw core update failed, continuing with installed version." >&2
   fi
 
   # Update separately installed plugins (npm-tracked only; bundled plugins update with openclaw core above).
-  # --yes skips integrity-change prompts in non-interactive environments.
+  # --yes is a global flag and must come before the subcommand for non-interactive use.
   echo "[entrypoint] Checking for openclaw plugin updates..."
-  if openclaw plugins update --all --yes 2>&1 | tail -n 5; then
+  if openclaw --yes plugins update --all 2>&1 | tail -n 5; then
     echo "[entrypoint] openclaw plugins up-to-date."
   else
     echo "[entrypoint] Warning: openclaw plugin update failed, continuing." >&2
