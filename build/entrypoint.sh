@@ -15,7 +15,8 @@ OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   log "--- openclaw core update check ---"
 
-  INSTALLED="blabla"# "$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
+  INSTALLED="blabla"
+  # "$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
   log "installed version : ${INSTALLED}"
 
   log "▶ npm view openclaw version  (fetching latest from registry...)"
