@@ -28,7 +28,7 @@ if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   else
     log "update available (${INSTALLED} → ${LATEST}), installing..."
     log "▶ sudo npm install -g openclaw@latest"
-    sudo npm install -g openclaw@latest --no-progress 2>&1
+    sudo npm install -g openclaw@latest --no-progress --verbose 2>&1 | stdbuf -oL cat
     log "openclaw updated to: $(openclaw --version 2>/dev/null || echo 'unknown')"
   fi
 
