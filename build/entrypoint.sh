@@ -22,8 +22,8 @@ if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   LATEST="$(npm view openclaw version 2>/dev/null || echo 'unknown')"
   log "latest on registry: ${LATEST}"
 
-  if [ "${INSTALLED}" = "${LATEST}" ]; then
-    log "already up-to-date, skipping install."
+  if [ "${INSTALLED}" = "${LATEST}" ] || [ -z "${LATEST}" ] || [ "${LATEST}" = "unknown" ]; then
+    log "already up-to-date (or registry unreachable), skipping install."
   else
     log "update available (${INSTALLED} → ${LATEST}), installing..."
     log "▶ npm install -g openclaw@latest"
