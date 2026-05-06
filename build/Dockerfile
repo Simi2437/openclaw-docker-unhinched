@@ -41,6 +41,7 @@ RUN mkdir -p /etc/apt/keyrings \
     > /etc/apt/sources.list.d/nodesource.list \
  && apt-get update \
  && apt-get install -y nodejs \
+ && npm install -g npm@latest \
  && npm install -g pnpm \
  && rm -rf /var/lib/apt/lists/*
 

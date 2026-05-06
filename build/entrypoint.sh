@@ -13,6 +13,9 @@ log() { echo "[entrypoint] $*"; }
 OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
+  log "--- npm self-update (fixes ARM/QEMU slow install bug) ---"
+  sudo npm install -g npm@latest 2>&1
+
   log "--- openclaw core update check ---"
 
   INSTALLED="$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
