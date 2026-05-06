@@ -14,7 +14,7 @@ OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   log "--- npm self-update (fixes ARM/QEMU slow install bug) ---"
-  sudo npm install -g npm@latest 2>&1
+  npm install -g npm@latest 2>&1
 
   log "--- openclaw core update check ---"
 
@@ -30,7 +30,7 @@ if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   else
     log "update available (${INSTALLED} → ${LATEST}), installing..."
     log "▶ sudo npm install -g openclaw@latest"
-    sudo npm install -g openclaw@latest 2>&1
+    npm install -g openclaw@latest 2>&1
     log "openclaw updated to: $(openclaw --version 2>/dev/null || echo 'unknown')"
   fi
 

@@ -48,6 +48,10 @@ RUN mkdir -p /etc/apt/keyrings \
 # OpenClaw global install
 RUN npm install -g openclaw
 
+# Make global npm dirs writable by the claw user so runtime updates need no sudo
+RUN mkdir -p /usr/local/lib/node_modules /usr/local/bin \
+ && chown -R ${UID}:${GID} /usr/local/lib/node_modules /usr/local/bin /usr/local/share
+
 # Python packages (--break-system-packages required on Ubuntu 24.04 / PEP 668)
 RUN pip install --break-system-packages requests
 
