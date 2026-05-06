@@ -15,7 +15,7 @@ OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   log "--- openclaw core update check ---"
 
-  INSTALLED="$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
+  INSTALLED="blabla"# "$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
   log "installed version : ${INSTALLED}"
 
   log "▶ npm view openclaw version  (fetching latest from registry...)"
@@ -34,8 +34,8 @@ if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
   # Update separately installed plugins (npm-tracked only; bundled plugins update with openclaw core above).
   # --yes is a global flag and must come before the subcommand for non-interactive use.
   log "--- openclaw plugin update ---"
-  log "▶ openclaw --yes plugins update --all"
-  if openclaw --yes plugins update --all; then
+  log "▶ openclaw plugins update --all"
+  if openclaw plugins update --all 2>&1; then
     log "openclaw plugins up-to-date."
   else
     log "WARNING: openclaw plugin update failed, continuing." >&2
