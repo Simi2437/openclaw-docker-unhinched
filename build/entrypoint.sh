@@ -8,30 +8,33 @@ set -euo pipefail
 #   OPENCLAW_AUTO_UPDATE=0  to skip updates (e.g. for offline/air-gapped use)
 # ---------------------------------------------------------------------------
 
+log() { echo "[entrypoint] $*"; }
+run() { log "▶ $*"; "$@"; }
+
 OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
-  echo "[entrypoint] Checking for openclaw core update..."
-  if sudo npm install -g openclaw 2>&1 | tail -n 3; then
-    echo "[entrypoint] openclaw up-to-date: $(openclaw --version 2>/dev/null || echo 'version unknown')"
+  log "--- openclaw core update ---"
+  if run sudo npm install -g openclaw; then
+    log "openclaw up-to-date: $(openclaw --version 2>/dev/null || echo 'version unknown')"
   else
-    echo "[entrypoint] Warning: openclaw core update failed, continuing with installed version." >&2
+    log "WARNING: openclaw core update failed, continuing with installed version." >&2
   fi
 
   # Update separately installed plugins (npm-tracked only; bundled plugins update with openclaw core above).
   # --yes is a global flag and must come before the subcommand for non-interactive use.
-  echo "[entrypoint] Checking for openclaw plugin updates..."
-  if openclaw --yes plugins update --all 2>&1 | tail -n 5; then
-    echo "[entrypoint] openclaw plugins up-to-date."
+  log "--- openclaw plugin update ---"
+  if run openclaw --yes plugins update --all; then
+    log "openclaw plugins up-to-date."
   else
-    echo "[entrypoint] Warning: openclaw plugin update failed, continuing." >&2
+    log "WARNING: openclaw plugin update failed, continuing." >&2
   fi
+
+  log "--- update complete ---"
 else
-  echo "[entrypoint] OPENCLAW_AUTO_UPDATE=0 – skipping update."
+  log "OPENCLAW_AUTO_UPDATE=0 – skipping update."
 fi
 
+log "▶ exec $*"
 # Hand off to the actual command (e.g. "openclaw gateway")
 exec "$@"
-
-
-
