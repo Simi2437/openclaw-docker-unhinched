@@ -5,16 +5,20 @@ services:
       dockerfile: build/Dockerfile
     image: openclaw:local
     container_name: openclaw
-    command: ["openclaw", "gateway"]
+    command: ["openclaw", "gateway", "--bind", "lan"]
     environment:
       # Set to 0 to skip the auto-update on container start (e.g. offline/air-gapped)
       OPENCLAW_AUTO_UPDATE: ${OPENCLAW_AUTO_UPDATE:-1}
+      # Gateway-Port (Standard: 18789) – kann hier oder per .env überschrieben werden
+      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
     working_dir: /home/claw
     stdin_open: true
     tty: true
     restart: unless-stopped
     networks:
       - agent-net
+    ports:
+      - "${OPENCLAW_GATEWAY_PORT:-18789}:${OPENCLAW_GATEWAY_PORT:-18789}"   # Gateway im Heimnetz erreichbar
     volumes:
       - ./agent-data/.openclaw:/home/claw/.openclaw
       - ./agent-data/.npm-global:/home/claw/.npm-global   # npm global packages – persistiert auf dem Host
