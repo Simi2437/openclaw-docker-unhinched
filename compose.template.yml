@@ -12,6 +12,8 @@ services:
       OPENCLAW_AUTO_UPDATE: ${OPENCLAW_AUTO_UPDATE:-1}
       # Gateway-Port (Standard: 18789) – kann hier oder per .env überschrieben werden
       OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+      # Gateway-Token – wird von setup.sh in .env geschrieben und hier an den Container weitergegeben
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
     working_dir: /home/claw
     stdin_open: true
     tty: true
@@ -35,4 +37,3 @@ networks:
   agent-net:
     name: agent-net
     driver: bridge
-
