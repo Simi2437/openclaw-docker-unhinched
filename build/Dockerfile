@@ -51,13 +51,12 @@ ARG UID=1000
 ARG GID=1000
 ARG USER=claw
 
-# OpenClaw global install (as root during build; runtime updates use sudo in entrypoint.sh)
-RUN npm install -g openclaw
-
+# openclaw wird NICHT mehr hier installiert.
+# Der entrypoint.sh übernimmt die Installation beim ersten Start
+# in das gemountete Host-Verzeichnis ~/.npm-global (persistiert auf dem Host).
 
 # Python packages (--break-system-packages required on Ubuntu 24.04 / PEP 668)
 RUN pip install --break-system-packages requests
-
 
 # Create group/user with explicit conflict handling so USER always resolves.
 RUN set -eux; \
@@ -88,9 +87,18 @@ RUN set -eux; \
     useradd -m -u "${UID}" -g "${GID}" -s /bin/bash "${USER}"; \
   fi; \
   mkdir -p "/home/${USER}/.openclaw"; \
+  mkdir -p "/home/${USER}/.npm-global"; \
+  mkdir -p "/home/${USER}/.npm"; \
   chown -R "${UID}:${GID}" "/home/${USER}"; \
   echo "${USER} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${USER}"; \
   chmod 0440 "/etc/sudoers.d/${USER}"
+
+# npm User-Prefix auf das gemountete Host-Verzeichnis setzen.
+# Damit landet jedes "npm install -g" in ~/.npm-global und bleibt dauerhaft erhalten.
+# Der Cache landet in ~/.npm – beschleunigt Updates erheblich (kein Re-Download).
+ENV NPM_CONFIG_PREFIX=/home/${USER}/.npm-global
+ENV NPM_CONFIG_CACHE=/home/${USER}/.npm
+ENV PATH=/home/${USER}/.npm-global/bin:$PATH
 
 USER ${USER}
 WORKDIR /home/${USER}

@@ -17,6 +17,8 @@ services:
       - agent-net
     volumes:
       - ./agent-data/.openclaw:/home/claw/.openclaw
+      - ./agent-data/.npm-global:/home/claw/.npm-global   # npm global packages – persistiert auf dem Host
+      - ./agent-data/.npm-cache:/home/claw/.npm            # npm download-cache – beschleunigt Updates
       - ./agent-data/.ssh:/home/claw/.ssh
       - ./:/workspace
       # Beispiel: Mount einer lokalen KeePass-Datei als Secret in den Container

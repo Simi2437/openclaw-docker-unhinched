@@ -6,6 +6,8 @@ set -euo pipefail
 # Controlled via environment variable:
 #   OPENCLAW_AUTO_UPDATE=1  (default: 1)
 #   OPENCLAW_AUTO_UPDATE=0  to skip updates (e.g. for offline/air-gapped use)
+#
+# npm global prefix: ~/.npm-global  (gemountet vom Host → Updates bleiben erhalten)
 # ---------------------------------------------------------------------------
 
 log() { echo "[entrypoint] $*"; }
@@ -13,22 +15,30 @@ log() { echo "[entrypoint] $*"; }
 OPENCLAW_AUTO_UPDATE="${OPENCLAW_AUTO_UPDATE:-1}"
 
 if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
-  log "--- openclaw core update check ---"
+  log "--- openclaw install/update check ---"
 
   INSTALLED="$(openclaw --version 2>/dev/null | awk '{print $2}' || echo 'unknown')"
   log "installed version : ${INSTALLED}"
 
-  log "▶ npm view openclaw version  (fetching latest from registry...)"
-  LATEST="$(npm view openclaw version 2>/dev/null || echo 'unknown')"
-  log "latest on registry: ${LATEST}"
-
-  if [ "${INSTALLED}" = "${LATEST}" ] || [ -z "${LATEST}" ] || [ "${LATEST}" = "unknown" ]; then
-    log "already up-to-date (or registry unreachable), skipping install."
+  # Erster Start: openclaw noch nicht installiert (leeres ~/.npm-global)
+  if [ "${INSTALLED}" = "unknown" ] || [ -z "${INSTALLED}" ]; then
+    log "openclaw nicht gefunden – Erstinstallation..."
+    log "▶ npm install -g openclaw@latest"
+    npm install -g openclaw@latest 2>&1 || { log "FEHLER: Erstinstallation fehlgeschlagen."; exit 1; }
+    log "openclaw installiert: $(openclaw --version 2>/dev/null || echo 'unknown')"
   else
-    log "update available (${INSTALLED} → ${LATEST}), installing..."
-    log "▶ sudo npm install -g openclaw@latest"
-    sudo npm install -g openclaw@latest 2>&1 || log "WARNING: openclaw core update failed, continuing with installed version."
-    log "openclaw now at: $(openclaw --version 2>/dev/null || echo 'unknown')"
+    log "▶ npm view openclaw version  (fetching latest from registry...)"
+    LATEST="$(npm view openclaw version 2>/dev/null || echo 'unknown')"
+    log "latest on registry: ${LATEST}"
+
+    if [ "${INSTALLED}" = "${LATEST}" ] || [ -z "${LATEST}" ] || [ "${LATEST}" = "unknown" ]; then
+      log "already up-to-date (or registry unreachable), skipping install."
+    else
+      log "update available (${INSTALLED} → ${LATEST}), installing..."
+      log "▶ npm install -g openclaw@latest"
+      npm install -g openclaw@latest 2>&1 || log "WARNING: openclaw update failed, continuing with installed version."
+      log "openclaw now at: $(openclaw --version 2>/dev/null || echo 'unknown')"
+    fi
   fi
 
   log "--- openclaw plugin update ---"
