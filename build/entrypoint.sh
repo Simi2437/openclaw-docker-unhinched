@@ -49,6 +49,10 @@ else
   log "OPENCLAW_AUTO_UPDATE=0 – skipping update."
 fi
 
-log "▶ exec $*"
-# Hand off to the actual command (e.g. "openclaw gateway")
-exec "$@"
+log "▶ exec supervisord"
+# supervisord übernimmt als Prozess-Manager:
+#   - startet "openclaw gateway --bind lan" (siehe /etc/supervisor/supervisord.conf)
+#   - startet es automatisch neu falls es abstürzt (autorestart=true)
+#   - "openclaw-restart" ruft "supervisorctl restart openclaw-gateway" auf
+#     → Gateway-Neustart vollständig im Container, kein systemd/Docker-Socket nötig
+exec supervisord -c /etc/supervisor/supervisord.conf

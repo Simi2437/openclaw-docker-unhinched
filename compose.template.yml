@@ -5,7 +5,8 @@ services:
       dockerfile: build/Dockerfile
     image: openclaw:local
     container_name: openclaw
-    command: ["openclaw", "gateway", "--bind", "lan"]
+    # Kein 'command' nötig – supervisord startet "openclaw gateway --bind lan"
+    # automatisch (konfiguriert in build/supervisord.conf).
     environment:
       # Set to 0 to skip the auto-update on container start (e.g. offline/air-gapped)
       OPENCLAW_AUTO_UPDATE: ${OPENCLAW_AUTO_UPDATE:-1}

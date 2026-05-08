@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y \
     fd-find \
     lsof \
     openssl \
+    supervisor \
  && rm -rf /var/lib/apt/lists/*
 
 # NodeSource repo for Node 24
@@ -107,7 +108,11 @@ WORKDIR /home/${USER}
 COPY --chown=${USER}:${USER} build/entrypoint.sh /usr/local/bin/entrypoint.sh
 # Switch to root briefly to chmod, then back to USER
 USER root
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Supervisord-Konfiguration (überschreibt den Ubuntu-Default – Socket → /tmp)
+COPY build/supervisord.conf /etc/supervisor/supervisord.conf
+# Restart-Shim: "openclaw-restart" startet den Gateway via supervisorctl neu
+COPY build/openclaw-restart.sh /usr/local/bin/openclaw-restart
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/openclaw-restart
 USER ${USER}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
