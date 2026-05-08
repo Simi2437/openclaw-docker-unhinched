@@ -26,8 +26,8 @@ if [ "${OPENCLAW_AUTO_UPDATE}" = "1" ]; then
     log "already up-to-date (or registry unreachable), skipping install."
   else
     log "update available (${INSTALLED} → ${LATEST}), installing..."
-    log "▶ npm install -g openclaw@latest"
-    npm install -g openclaw@latest 2>&1 || log "WARNING: openclaw core update failed, continuing with installed version."
+    log "▶ sudo npm install -g openclaw@latest"
+    sudo npm install -g openclaw@latest 2>&1 || log "WARNING: openclaw core update failed, continuing with installed version."
     log "openclaw now at: $(openclaw --version 2>/dev/null || echo 'unknown')"
   fi
 

@@ -45,20 +45,19 @@ RUN mkdir -p /etc/apt/keyrings \
  && npm install -g pnpm \
  && rm -rf /var/lib/apt/lists/*
 
-# OpenClaw global install
+# Build args to match host user (prevents permission issues with mounted volumes)
+# Must be declared BEFORE they are used in RUN/chown commands
+ARG UID=1000
+ARG GID=1000
+ARG USER=claw
+
+# OpenClaw global install (as root during build; runtime updates use sudo in entrypoint.sh)
 RUN npm install -g openclaw
 
-# Make global npm dirs writable by the claw user so runtime updates need no sudo
-RUN mkdir -p /usr/lib/node_modules /usr/local/bin \
- && chown -R ${UID}:${GID} /usr/lib/node_modules /usr/local/bin
 
 # Python packages (--break-system-packages required on Ubuntu 24.04 / PEP 668)
 RUN pip install --break-system-packages requests
 
-# Build args to match host user (prevents permission issues with mounted volumes)
-ARG UID=1000
-ARG GID=1000
-ARG USER=claw
 
 # Create group/user with explicit conflict handling so USER always resolves.
 RUN set -eux; \
